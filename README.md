@@ -15,6 +15,7 @@ This project provides an automation to link a **Frient Keypad** to the **Alarmo*
 - **Invalid Code**: Flashes an orange light when an incorrect PIN or RFID tag is used.  
 - **Alarm in Progress**: Flashes a red light when the alarm is active.  
 - **RFID**: Support for multiple PIN codes and RFID tags.
+- **Optional Arming Without PIN**: You can enable an option that allows arming (away, home, or night modes) **without entering a PIN code** on the keypad. When this feature is enabled, users can press the corresponding arming button directly to activate the alarm.
 
 ### RFID Tips:
 - Use tools like [NFC Tools](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc&hl=en&gl=US) (on Android) to read your RFID tags. Simply copy the tag ID (preceded by `+`) into the list of allowed PIN codes.  
