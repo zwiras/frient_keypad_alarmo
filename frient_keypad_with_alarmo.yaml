@@ -31,6 +31,14 @@ blueprint:
             "A list of valid PIN codes and RFID tags that can be accepted by
             your keypad, separated by semicolons \" ; \".\n You can enter either a PIN code
             or an RFID tag for authentication.\n For example: 1234; +ACF5678B"
+        allow_arm_without_code:
+          name: Allow Arming Without Code
+          description: >
+            When enabled, arming actions (away, home, night) can be performed
+            without entering a PIN on the keypad.
+          default: false
+          selector:
+            boolean:
     control_panel:
       name: Control Panel
       description: "Manage Control Panel settings and actions triggered by state changes."
@@ -165,10 +173,11 @@ blueprint:
           default: []
           selector:
             action: {}
-  source_url: https://github.com/Bygood91/frient_keypad_alarmo/blob/main/frient_keypad_with_alarmo.yaml
+  source_url: https://github.com/zwiras/frient_keypad_alarmo/blob/main/frient_keypad_with_alarmo.yaml
 variables:
   pin_list_var: !input pin_list
   pin_list: "{{ pin_list_var.split(';') }}"
+  allow_arm_without_code: !input allow_arm_without_code
   custom_pincode_1: !input custom_pincode_1
   custom_pincode_2: !input custom_pincode_2
   custom_pincode_3: !input custom_pincode_3
@@ -283,8 +292,10 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_all_zones" }}'
+                      '{{ ( trigger.payload_json.action_code in pin_list 
+                            or ( allow_arm_without_code and ( trigger.payload_json.action_code | default("") | length == 0 ) ) 
+                          ) 
+                      and trigger.payload_json.action == "arm_all_zones" }}'
                 sequence:
                   - action: alarm_control_panel.alarm_arm_away
                     target:
@@ -294,8 +305,10 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_day_zones" }}'
+                      '{{ ( trigger.payload_json.action_code in pin_list 
+                            or ( allow_arm_without_code and ( trigger.payload_json.action_code | default("") | length == 0 ) )  
+                          ) 
+                      and trigger.payload_json.action == "arm_day_zones" }}'
                 sequence:
                   - action: alarm_control_panel.alarm_arm_home
                     target:
@@ -305,8 +318,9 @@ actions:
               - conditions:
                   - condition: template
                     value_template:
-                      '{{ trigger.payload_json.action_code in pin_list and trigger.payload_json.action
-                      == "arm_night_zones" }}'
+                      '{{ ( trigger.payload_json.action_code in pin_list 
+                            or ( allow_arm_without_code and ( trigger.payload_json.action_code | default("") | length == 0 ) ) 
+                       ) and trigger.payload_json.action == "arm_night_zones" }}'
                 sequence:
                   - action: alarm_control_panel.alarm_arm_night
                     target:
